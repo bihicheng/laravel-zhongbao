@@ -1,4 +1,4 @@
-@extends('layouts.base')
+@extends('layouts.list')
 @section('title', '任务')
 
 @section('banner')

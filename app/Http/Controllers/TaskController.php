@@ -28,9 +28,9 @@ class TaskController extends Controller
      */
     public function create(Request $request)
     {
-        $uid = $request->cookie('__mugeda_uid');
+        // $uid = $request->cookie('__mugeda_uid');
 
-        return view('vendor.createTask');
+        return view('vendor.task_new');
     }
 
     /**

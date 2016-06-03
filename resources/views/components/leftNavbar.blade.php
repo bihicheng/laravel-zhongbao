@@ -1,12 +1,14 @@
-<button class="ui top button">创建项目</button>
-<div class="ui big secondary vertical menu">
-    <div class="item">
-        <div class="header">项目列表</div>
-    </div>
-    <div class="item">
-        <div class="header">我的项目</div>
-    </div>
-    <div class="item">
-        <div class="header">我的消息</div>
-    </div>
+<a class="ui large orange top toggle attached fluid button" href="/tasks/new">
+    创建项目
+</a>
+<div class="ui large attached divided fluid secondary list">
+    <a class="item">
+        项目列表
+    </a>
+    <a class="item">
+        我的项目
+    </a>
+    <a class="item">
+        我的消息
+    </a>
 </div>
