@@ -14,6 +14,7 @@
                 @include('components.footer')
             </footer>
         </div>
+        @include('layouts.javascript_resources')
         <script src="@yield('script')"></script>
     </body>
 </html>

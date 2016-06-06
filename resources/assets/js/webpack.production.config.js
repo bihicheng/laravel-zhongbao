@@ -2,18 +2,9 @@ var webpack = require('webpack');
 var path = require('path');
 
 module.exports = {
-    devServer: {
-        historyApiFallback: true,
-        hot: true,
-        inline: true,
-        progress: true,
-        contentBase: './',
-        port: 8085
-    },
     entry: {
-        tasks: [
-            path.resolve(__dirname, 'entrys/tasks.js')
-        ]
+        tasks: path.resolve(__dirname, 'entrys/tasks.js'),
+        task: path.resolve(__dirname, 'entrys/task.js')
     },
     output: {
         //path: path.resolve(__dirname, 'build'),

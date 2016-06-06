@@ -16,7 +16,8 @@ module.exports = {
         port: 8085
     },
     entry: {
-        tasks: entryCommon.concat([path.resolve(__dirname, 'entrys/tasks.js')])
+        tasks: entryCommon.concat([path.resolve(__dirname, 'entrys/tasks.js')]),
+        task: entryCommon.concat([path.resolve(__dirname, 'entrys/task.js')])
     },
     output: {
         //path: path.resolve(__dirname, 'build'),

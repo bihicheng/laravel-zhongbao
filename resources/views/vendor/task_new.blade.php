@@ -6,40 +6,7 @@
 @stop
 
 @section('mainContainer')
-    <div class="segment">
-        <div class="ui form column stackable grid">
-            <div class="row">
-                <div class="two wide column right aligned">
-                    <label>项目名称</label>
-                </div>
-                <div class="four wide column">
-                    <input type="text" placeholder="必填" />
-                </div>
-            </div>
-            <div class="row">
-                <div class="two wide column right aligned">
-                    <label>项目类别</label>
-                </div>
-                <div class="four wide column">
-                    <input type="text" placeholder="必填" />
-                </div>
-            </div>
-            <div class="row">
-                <div class="two wide column right aligned">
-                    <label>项目截止日期</label>
-                </div>
-                <div class="four wide column">
-                    <input type="text" placeholder="必填" />
-                </div>
-            </div>
-            <div class="row">
-                <div class="two wide column right aligned">
-                    <label>项目描述</label>
-                </div>
-                <div class="eight wide column">
-                    <textarea class="left float" rows="5"></textarea>
-                </div>
-            </div>
-        </div>
-    </div>
+    <div class="segment" id="js-task-form"></div>
 @stop
+
+@section('script'){{ "//" . env('CND_DOMAIN') . "/assets/task.bundle.js" }}@stop
