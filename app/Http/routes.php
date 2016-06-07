@@ -13,3 +13,4 @@
 
 Route::get('/tasks', 'TaskController@index');
 Route::get('/tasks/new', 'TaskController@create');
+Route::get('/tasks/{id}/edit', 'TaskController@edit');

@@ -3,18 +3,12 @@ import moment from 'moment'
 import {FormTextField, FormTextAreaField, FormDropDown, FormDatePicker, FormPhoneValidator, minDateStart} from './FormField'
 import * as FormActions  from  '../actions/formAction'
 import * as ActionTypes from '../actions/actionTypes'
+import TaskForm from './TaskForm'
 
-export const emptyStr = ''
-const loadingStr = 'loading'
-
-const capitalizeFirstLetter = (string) => {
-    return string.charAt(0).toUpperCase() + string.slice(1)
-}
-
-const TaskForm = React.createClass({
+const empytStr = ''
+export class TaskEditForm extends TaskForm {
     getInitialState() {
         return {
-            remaining: 0,
             title:    {value: emptyStr, error: emptyStr},
             kind:     {value: emptyStr, error: emptyStr},
             endDate:  {value: moment().add(minDateStart, 'days'), error: emptyStr},
@@ -22,66 +16,7 @@ const TaskForm = React.createClass({
             captcha:  {value: emptyStr, error: emptyStr},
             desc:     {value: emptyStr, error: emptyStr}
         }
-    },
-
-    getActionByType(actionType, fieldName) {
-        const type = capitalizeFirstLetter(actionType)
-        return FormActions[fieldName + type] || (() => ({}))
-    },
-
-    getActions(actionTypes=[], fieldName) {
-        let self = this
-        let actions = []
-
-        actionTypes.forEach((item) => {
-            actions.push(self.getValidateAction(item.type, fieldName, item.isAsync))
-        })
-
-        return actions
-    },
-
-    getValidateAction(actionType, fieldName, isAsync) {
-        let self = this
-        const action = this.getActionByType(actionType, fieldName)
-        const merge = (changeState={}) => {
-            return Object.assign({}, self.state, changeState)
-        }
-
-        const handler = (inputObj) => {
-            if (isAsync) {
-                self.setState(merge({
-                    [fieldName]: {error: loadingStr}
-                }))
-            }
-
-            let actionResult = action(inputObj)
-            if (actionResult.then) {
-                actionResult.then((newVal, error) => {
-                    self.setState(merge({
-                        [fieldName]: {value: newVal, error: error}
-                    }))
-                }, (error) => {
-                    let oldVal = self.state[fieldName].value
-                    self.setState(merge({
-                        [fieldName]: {value: oldVal, error: error}
-                    }))
-                });
-            } else {
-                if (inputObj.target) {
-                    self.setState(merge({
-                        [fieldName]: {value: inputObj.target.value}
-                    }))
-                }
-            }
-        }
-
-        handler.bind(this)
-
-        return {
-            type: actionType,
-            handler: handler
-        }
-    },
+    }
 
     render() {
         let options = [{name: '节日', value: 1}, {name: '游戏', value: 2}, {name: '营销', value: 3}]
@@ -122,25 +57,8 @@ const TaskForm = React.createClass({
                 <FormPhoneValidator
                     label="手机号码"
                     placeholder="必填"
-                    validateAction={
-                        this.getActions([{type: ActionTypes.CHANGE, isAsync: false},
-                                         {type: ActionTypes.BLUR, isAsync: false}], 'phone')
-                    }
-                    remaining={this.state.remaining}
                     value={this.state.phone.value}
-                    error={this.state.phone.error}
                     name="phone"
-                />
-                <FormTextField
-                    label="验证码"
-                    validateAction={
-                        this.getActions([{type: ActionTypes.CHANGE, isAsync: false},
-                                         {type: ActionTypes.BLUR, isAsync: true}], 'captcha')
-                    }
-                    value={this.state.captcha.value}
-                    error={this.state.captcha.error}
-                    placeholder="必填"
-                    name="captcha"
                 />
                 <FormTextAreaField
                     label="项目描述"
@@ -154,6 +72,4 @@ const TaskForm = React.createClass({
             </div>
         )
     }
-})
-
-export default TaskForm
+}

@@ -63,7 +63,7 @@ class TaskController extends Controller
      */
     public function edit($id)
     {
-        //
+        return view('vendor.task_new');
     }
 
     /**

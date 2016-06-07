@@ -1,8 +1,12 @@
 import React from 'react'
-import ReactDom from 'react-dom'
-import {TaskForm} from '../components/TaskForm'
+import {render} from 'react-dom'
+import {Router, Route, browserHistory} from 'react-router'
+import TaskForm from '../components/TaskForm'
+import TaskEditForm from '../components/TaskEditForm'
 
-ReactDom.render(
-    <TaskForm />,
-    document.getElementById('js-task-form')
-)
+render((
+  <Router history={browserHistory}>
+    <Route path="/tasks/new" component={TaskForm} />
+    <Route path="/tasks/:taskId/edit" component={TaskEditForm} />
+  </Router>
+), document.getElementById('js-task-form'))
