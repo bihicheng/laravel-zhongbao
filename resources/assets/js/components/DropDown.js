@@ -16,19 +16,21 @@ class DropDown extends Component {
 
     componentDidUpdate() {
         let node = this.refs.dropdownNode
-        $(node).dropdown('refresh')
+        $(node).dropdown('set selected', this.props.value)
     }
 
     render() {
+        const {name, defaultText, options, value} = this.props
+
         return (
-            <div className="ui dropdown" ref="dropdownNode">
-                <input type="hidden" name={this.props.name} />
+            <div className="ui selection dropdown" ref="dropdownNode">
+                <input type="hidden" name={name} value={value}/>
                 <i className="dropdown icon"></i>
-                <div className="default text">{this.props.defaultText}</div>
+                <div className="default text">{defaultText}</div>
                 <div className="menu">
                 {
-                    this.props.options.map((item) => {
-                        return <div className="item" data-value={item.value}>{item.name}</div>
+                    options.map((item, i) => {
+                        return <div className="item" key={i} data-value={item.value}>{item.name}</div>
                     })
                 }
                 </div>

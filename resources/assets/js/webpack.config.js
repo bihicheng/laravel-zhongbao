@@ -20,8 +20,7 @@ module.exports = {
         task: entryCommon.concat([path.resolve(__dirname, 'entrys/task.js')])
     },
     output: {
-        //path: path.resolve(__dirname, 'build'),
-        path: '/home/mugeda/mugeda-card-proxy/assets',
+        path: path.resolve(__dirname, 'build'),
         publicPath: '/assets/',
         filename: './[name].bundle.js'
     },
