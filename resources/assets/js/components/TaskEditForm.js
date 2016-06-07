@@ -3,10 +3,11 @@ import moment from 'moment'
 import {FormTextField, FormTextAreaField, FormDropDown, FormDatePicker, FormPhoneValidator, minDateStart} from './FormField'
 import * as FormActions  from  '../actions/formAction'
 import * as ActionTypes from '../actions/actionTypes'
-import TaskForm from './TaskForm'
+import TaskFormMixins from './TaskFormMixins'
 
-const empytStr = ''
-export class TaskEditForm extends TaskForm {
+const emptyStr = ''
+const TaskEditForm = React.createClass({
+    mixins: [TaskFormMixins],
     getInitialState() {
         return {
             title:    {value: emptyStr, error: emptyStr},
@@ -16,7 +17,7 @@ export class TaskEditForm extends TaskForm {
             captcha:  {value: emptyStr, error: emptyStr},
             desc:     {value: emptyStr, error: emptyStr}
         }
-    }
+    },
 
     render() {
         let options = [{name: '节日', value: 1}, {name: '游戏', value: 2}, {name: '营销', value: 3}]
@@ -54,7 +55,7 @@ export class TaskEditForm extends TaskForm {
                     error={this.state.endDate.error}
                     name="endDate"
                 />
-                <FormPhoneValidator
+                <FormTextField
                     label="手机号码"
                     placeholder="必填"
                     value={this.state.phone.value}
@@ -72,4 +73,6 @@ export class TaskEditForm extends TaskForm {
             </div>
         )
     }
-}
+})
+
+export default TaskEditForm
