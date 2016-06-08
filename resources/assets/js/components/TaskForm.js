@@ -2,6 +2,7 @@ import React, {PropTypes, Component} from 'react'
 import moment from 'moment'
 import {FormTextField, FormTextAreaField, FormDropDown, FormDatePicker, FormPhoneValidator, minDateStart} from './FormField'
 import TaskFormMixins from './TaskFormMixins'
+import * as ActionTypes from '../actions/actionTypes'
 
 export const emptyStr = ''
 const loadingStr = 'loading'
@@ -84,6 +85,7 @@ export const TaskForm = React.createClass({
                     validateAction={
                         this.getActions([{type: ActionTypes.CHANGE, isAsync: false}], 'desc')
                     }
+                    error={this.state.desc.error}
                     value={this.state.desc.value}
                     name="desc"
                 />
