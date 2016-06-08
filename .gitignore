@@ -4,3 +4,8 @@
 Homestead.yaml
 Homestead.json
 .env
+.DS_Store
+Debugger*
+Local*
+local_app.php
+zh_CN

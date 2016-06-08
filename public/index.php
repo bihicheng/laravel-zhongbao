@@ -32,8 +32,12 @@ require __DIR__.'/../bootstrap/autoload.php';
 | the responses back to the browser and delight our users.
 |
 */
+if(file_exists(__DIR__ . '/../bootstrap/local_app.php')) {
+	$app = require_once __DIR__.'/../bootstrap/local_app.php';
+} else {
+	$app = require_once __DIR__.'/../bootstrap/app.php';
+}
 
-$app = require_once __DIR__.'/../bootstrap/app.php';
 
 /*
 |--------------------------------------------------------------------------
