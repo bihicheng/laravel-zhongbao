@@ -19,11 +19,11 @@ class CreateTasksTable extends Migration
             $table->index('user_id');
             $table->tinyInteger('status');
             $table->tinyInteger('kind');
-            $table->dateTime('deadline_at');
-            $table->dateTime('preview_at');
-            $table->dateTime('commit_at');
+            $table->timestamp('deadline_at');
+            $table->timestamp('preview_at')->nullable();
+            $table->timestamp('commit_at')->nullable();
             $table->decimal('amount', 10, 3);
-            $table->softDeletes();
+            $table->softDeletes(); # 软删除
             $table->timestamps();
         });
     }

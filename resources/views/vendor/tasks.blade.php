@@ -60,7 +60,9 @@
             </div>
         </div>
     @endforeach
+    {!! $tasks->render() !!}
     </div>
 @stop
+
 
 @section('script'){{ "//" . env('CND_DOMAIN') . "/assets/tasks.bundle.js" }}@stop

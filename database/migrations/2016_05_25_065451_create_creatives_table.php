@@ -3,7 +3,7 @@
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateCandidateTable extends Migration
+class CreateCreativesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -12,15 +12,12 @@ class CreateCandidateTable extends Migration
      */
     public function up()
     {
-        Schema::create('candidate', function (Blueprint $table) {
+        Schema::create('creatives', function (Blueprint $table) {
             $table->increments('id');
-            $table->tinyInteger('status');
             $table->integer('task_id')->unsigned();
-            $table->foreign('task_id')
-                ->references('id')
-                ->on('tasks')
-                ->onDelete('cascade');
+            $table->foreign('task_id')->references('id')->on('tasks')->onDelete('cascade');
             $table->string('user_id');
+            $table->string('crid');
             $table->timestamps();
         });
     }
@@ -32,6 +29,6 @@ class CreateCandidateTable extends Migration
      */
     public function down()
     {
-        Schema::drop('candidate');
+        Schema::drop('creatives');
     }
 }
