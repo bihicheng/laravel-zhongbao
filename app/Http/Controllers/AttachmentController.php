@@ -75,7 +75,9 @@ class AttachmentController extends Controller
         $attachment = new Attachment;
         $attachment->type = $type;
         $attachment->task_id = $task_id;
-        $attachment->name = $task->title;
+        $attachment->name = $filename;
+        $attachment->size = $filesize;
+        $attachment->extension = $fileext;
         $attachment->content_type = $mimetype;
         $attachment->data = $filecontents;
         $attachment->user_id = '55ed066e8e28cd5d358b45c4';

@@ -186,6 +186,12 @@ class TaskController extends Controller
         if (!$task) {
             $response = GetResponse(NOT_SUPPORTED, 'Task Not Found');
         } else {
+            $attachments = $task->attachments;
+            array_pull($task, 'user_id');
+            foreach ($attachments as $attachment) {
+                array_pull($attachment, 'data');
+                array_pull($attachment, 'user_id');
+            }
             $response = GetResponse(OK, ['task' => $task]);
         }
 
