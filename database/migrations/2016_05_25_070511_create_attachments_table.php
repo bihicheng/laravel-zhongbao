@@ -3,7 +3,7 @@
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateAttachementsTable extends Migration
+class CreateAttachmentsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -12,7 +12,7 @@ class CreateAttachementsTable extends Migration
      */
     public function up()
     {
-        Schema::create('attachements', function (Blueprint $table) {
+        Schema::create('attachments', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('type');
             $table->integer('task_id')->unsigned();
@@ -32,6 +32,6 @@ class CreateAttachementsTable extends Migration
      */
     public function down()
     {
-        Schema::drop('attachements');
+        Schema::drop('attachments');
     }
 }

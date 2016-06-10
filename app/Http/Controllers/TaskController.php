@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 use App\Http\Requests;
 use App\Http\Requests\StoreTaskRequest;
 use Validator;
-use App\Http\Controllers\controller;
+use App\Http\Controllers\Controller;
 use App\Repositories\TaskRepository;
 
 class TaskController extends Controller
@@ -181,7 +181,15 @@ class TaskController extends Controller
      */
     public function show($id)
     {
-        //
+        $task = Task::find($id);
+
+        if (!$task) {
+            $response = GetResponse(NOT_SUPPORTED, 'Task Not Found');
+        } else {
+            $response = GetResponse(OK, ['task' => $task]);
+        }
+
+        return response()->json($response);
     }
 
     /**

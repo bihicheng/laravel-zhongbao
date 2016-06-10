@@ -12,10 +12,10 @@ use Illuminate\Http\Request;
 
 use App\Http\Requests;
 use App\Task;
-use App\Attachement;
+use App\Attachment;
 use Validator;
 
-class AttachementController extends Controller
+class AttachmentController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -72,18 +72,18 @@ class AttachementController extends Controller
             return response()->json($response);            
         }
         $filecontents = file_get_contents($filepath);
-        $attachement = new Attachement;
-        $attachement->type = $type;
-        $attachement->task_id = $task_id;
-        $attachement->name = $task->title;
-        $attachement->content_type = $mimetype;
-        $attachement->data = $filecontents;
-        $attachement->user_id = '55ed066e8e28cd5d358b45c4';
-        $ret = $attachement->save();
+        $attachment = new Attachment;
+        $attachment->type = $type;
+        $attachment->task_id = $task_id;
+        $attachment->name = $task->title;
+        $attachment->content_type = $mimetype;
+        $attachment->data = $filecontents;
+        $attachment->user_id = '55ed066e8e28cd5d358b45c4';
+        $ret = $attachment->save();
         if($ret) {
-            $response = GetResponse(OK, ['attachement_id'=>$attachement->id, 
+            $response = GetResponse(OK, ['attachment_id'=>$attachment->id, 
                                         'task_title'=>$task->title, 
-                                        'attachemtn_name'=>$filename]);
+                                        'attachment_name'=>$filename]);
         } else {
             $response = GetResponse(INTERNAL_ERROR, 'failed save task.');
         }

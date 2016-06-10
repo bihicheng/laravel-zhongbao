@@ -4,7 +4,7 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Attachement extends Model
+class Attachment extends Model
 {
     public function task() {
     	return $this->belongsTo('App\Task');

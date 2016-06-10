@@ -14,7 +14,7 @@ class Task extends Model
 		return $this->hasOne('App\Description');
 	}
 
-	public function attachements() {
-		return $this->hasMany('App\Attachement');		
+	public function attachments() {
+		return $this->hasMany('App\Attachment');		
 	}
 }

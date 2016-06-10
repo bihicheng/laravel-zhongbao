@@ -7,8 +7,8 @@
  */
 
 Route::group(array('prefix' => 'api/v1'), function() {
-    Route::resource('task', 'TaskController', ['only'=>['index', 'store']]);
-    Route::resource('attachement', 'AttachementController', ['only' => ['store']]);
+    Route::resource('tasks', 'TaskController', ['only'=>['index', 'store', 'show']]);
+    Route::resource('attachments', 'AttachmentController', ['only' => ['store', 'show', 'index']]);
     Route::get('/user_task', 'TaskController@user_task')
     						->name('api.v1.tasks.user_task');
 });
