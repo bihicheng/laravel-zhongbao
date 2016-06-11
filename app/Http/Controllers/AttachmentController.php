@@ -134,6 +134,15 @@ class AttachmentController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $attachment = Attachment::find($id);
+
+        if ($attachment) {
+            $attachment->delete();
+            $response = GetResponse(OK, ['id' => $id]);
+        } else {
+            $response = GetResponse(NOT_SUPPORTED);
+        }
+
+        return response()->json($response);
     }
 }
