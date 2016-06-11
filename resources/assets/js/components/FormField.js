@@ -29,7 +29,7 @@ class Validator extends Component {
 class FieldItem extends Component {
     render() {
         const {wide, error, className} = this.props
-        let initClassName = [wide, 'wide inline field']
+        let initClassName = [wide, 'wide column inline field']
         if (className) {
             initClassName.push(className)
         }
@@ -63,8 +63,8 @@ export class FormTextField extends Component {
         const inputLayout = mergeProps(validateAction, <input type="text" name={name} value={value||''} />)
 
         return (
-            <div className="fields">
-                <div className="two wide field">
+            <div className="ui grid stackable">
+                <div className="two wide column task-form-label">
                     <label>{label}</label>
                 </div>
                 <FieldItem wide="eight" error={error} >
@@ -82,8 +82,8 @@ export class FormTextAreaField extends Component {
         const textAreaLayout = mergeProps(validateAction, <textarea name={name} value={value||''} ></textarea>)
 
         return (
-            <div className="fields">
-                <div className="two wide field">
+            <div className="ui grid stackable">
+                <div className="two wide column task-form-label">
                     <label>{label}</label>
                 </div>
                 <FieldItem wide="eight" error={error}>
@@ -99,7 +99,7 @@ require('react-datepicker/dist/react-datepicker.css')
 export class FormDatePicker extends Component {
     render() {
         const {label, value, validateAction, error, ...attrs} = this.props
-        const datePickerLayout = mergeProps(validateAction, 
+        const datePickerLayout = mergeProps(validateAction,
                 <DatePicker selected={value}
                         dateFormat="YYYY-MM-DD"
                         minDate={moment().add(minDateStart, 'days')}
@@ -107,13 +107,13 @@ export class FormDatePicker extends Component {
                         {...attrs} />)
 
         return (
-            <div className="fields">
-                <div className="two wide field right aligned">
+            <div className="ui grid stackable">
+                <div className="two wide column task-form-label">
                     <label>{label}</label>
                 </div>
                 <FieldItem wide="ten" error={error}>
                     {datePickerLayout}
-                    <button className="ui icon button">
+                    <button className="ui icon button task-form-calendar-icon">
                         <i className="calendar icon"></i>
                     </button>
                     <Validator error={error} />
@@ -127,13 +127,13 @@ export class FormDropDown extends Component {
     render() {
         const {label, defaultText, validateAction, options, error, ...attrs} = this.props
         const dropDownLayout = mergeProps(validateAction,
-                        <DropDown defaultText={defaultText} 
+                        <DropDown defaultText={defaultText}
                                   options={options}
                                   {...attrs} />)
 
         return (
-            <div className="fields">
-                <div className="two wide field right aligned">
+            <div className="ui grid stackable">
+                <div className="two wide column task-form-label">
                     <label>{label}</label>
                 </div>
                 <FieldItem wide="eight" error={error}>
@@ -148,30 +148,31 @@ export class FormDropDown extends Component {
 class PhoneValidatorSender extends Component {
     render() {
         let remaining = this.props.remaining;
+        let label = ''
 
         if (remaining === 0) {
-            return (
-                <button className="ui icon button">获取验证码</button>
-            )
+            label = '获取验证码'
         } else {
-            return (
-                <button className="ui icon button">{remaining}s</button>
-            )
+            label = remaining + 's可重新发送'
         }
+
+        return (
+            <div className="ui basic button">{label}</div>
+        )
     }
 }
 
 export class FormPhoneValidator extends Component {
     render() {
         const {label, value, name, validateAction, error, remaining, ...attrs} = this.props
-        const phoneLayout = mergeProps(validateAction, <input type="text" name={name} value={value||''}/>)
+        const phoneLayout = mergeProps(validateAction, <input type="text" name={name} value={value||''} />)
 
         return (
-            <div className="fields">
-                <div className="two wide field right aligned">
+            <div className="ui grid stackable">
+                <div className="two wide column task-form-label">
                     <label>{label}</label>
                 </div>
-                <FieldItem wide="eight" error={error} className="action input">
+                <FieldItem wide="eight" error={error} className="ui right inline field input">
                     {phoneLayout}
                     <PhoneValidatorSender remaining={remaining} />
                     <Validator error={error} />
