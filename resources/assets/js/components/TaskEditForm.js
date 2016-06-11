@@ -7,10 +7,20 @@ import * as ActionTypes from '../actions/actionTypes'
 import TaskFormMixins from './TaskFormMixins'
 
 const emptyStr = ''
+
+const getTaskDetailFromServer = (taskId) => {
+    return $.getJSON('/api/v1/tasks/' + (taskId || -1))
+}
+
 const TaskEditForm = React.createClass({
     mixins: [TaskFormMixins],
+    setStateEntry(value, error=emptyStr, readonly=false) {
+        return {value: value, error: error, readonly: readonly}
+    },
+
     getInitialState() {
         return {
+            loading:  true,
             files:    [],
             title:    {value: emptyStr, error: emptyStr, readonly: false},
             kind:     {value: emptyStr, error: emptyStr, readonly: false},
@@ -20,12 +30,36 @@ const TaskEditForm = React.createClass({
         }
     },
 
-    render() {
+    componentDidMount() {
+        getTaskDetailFromServer(this.props.params.taskId).then(
+            (response) => {
+                if (response.status === 0) {
+                    let task = response.task
+                    this.setState(Object.assign({}, self.state, {
+                        loading: false,
+                        files: task.attachments,
+                        title: this.setStateEntry(task.title),
+                        kind: this.setStateEntry(task.kind),
+                        endDate: this.setStateEntry(moment(task.deadline_at, 'YYYY-MM-DD')),
+                        phone: this.setStateEntry(''),
+                        desc: this.setStateEntry('')
+                    }))
+                } else {
+                    this.setState(Object.assign({}, this.state, {requestError: response.error, loading: false}))
+                }
+            },
+            (error) => {
+                this.setState(Object.assign({}, this.state, {requestError: error, loading: false}))
+            }
+        )
+    },
+
+    renderForm() {
         let options = [{name: '节日', value: 1}, {name: '游戏', value: 2}, {name: '营销', value: 3}]
 
         return (
-            <div className="ui segment basic">
-                <div className="ui form stackable">
+            <div className="ui basic">
+                <div className="ui form">
                     <FormTextField
                         label="项目名称"
                         placeholder="必填"
@@ -80,7 +114,32 @@ const TaskEditForm = React.createClass({
                     <button className="ui button" type="submit" onClick={this.handleSubmit}>更新</button>
                 </div>
                 <div className="ui divider"></div>
-                <TaskAttachments files={this.state.files} />
+                <TaskAttachments files={this.state.files || []} taskId={this.props.params.taskId} />
+            </div>
+        )
+    },
+
+    render() {
+        let editForm = ''
+        if (this.state.loading) {
+            editForm = (
+                <div className="ui active inverted dimmer">
+                    <div className="ui medium text loader">加载中</div>
+                </div>
+            )
+        } else if (this.state.requestError) {
+            editForm = (
+                <div className="ui message info">
+                    {this.state.requestError}
+                </div>
+            )
+        } else {
+            editForm = this.renderForm()
+        }
+
+        return (
+            <div className="ui basic">
+                {editForm}
             </div>
         )
     }

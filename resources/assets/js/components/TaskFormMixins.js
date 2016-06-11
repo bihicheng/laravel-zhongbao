@@ -12,26 +12,24 @@ const TaskFormMixins = {
     },
 
     getActions(actionTypes=[], fieldName) {
-        let self = this
         let actions = []
 
         actionTypes.forEach((item) => {
-            actions.push(self.getValidateAction(item.type, fieldName, item.isAsync))
+            actions.push(this.getValidateAction(item.type, fieldName, item.isAsync))
         })
 
         return actions
     },
 
     getValidateAction(actionType, fieldName, isAsync) {
-        let self = this
         const action = this.getActionByType(actionType, fieldName)
         const merge = (changeState={}) => {
-            return Object.assign({}, self.state, changeState)
+            return Object.assign({}, this.state, changeState)
         }
 
         const handler = (inputObj) => {
             if (isAsync) {
-                self.setState(merge({
+                this.setState(merge({
                     [fieldName]: {error: loadingStr}
                 }))
             }
@@ -39,18 +37,18 @@ const TaskFormMixins = {
             let actionResult = action(inputObj)
             if (actionResult.then) {
                 actionResult.then((newVal, error) => {
-                    self.setState(merge({
+                    this.setState(merge({
                         [fieldName]: {value: newVal, error: error}
                     }))
                 }, (error) => {
-                    let oldVal = self.state[fieldName].value
-                    self.setState(merge({
+                    let oldVal = this.state[fieldName].value
+                    this.setState(merge({
                         [fieldName]: {value: oldVal, error: error}
                     }))
                 });
             } else {
                 if (inputObj.target) {
-                    self.setState(merge({
+                    this.setState(merge({
                         [fieldName]: {value: inputObj.target.value}
                     }))
                 }

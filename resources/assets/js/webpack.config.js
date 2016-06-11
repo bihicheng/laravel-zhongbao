@@ -26,7 +26,7 @@ module.exports = {
     },
     module: {
         loaders: [
-            {test: /\.css/, include: path.resolve(__dirname, './'), loader: 'style-loader!css-loader'},    
+            {test: /(\.css|\.less)/, loader: 'style-loader!css-loader!less-loader'},    
             {test: /\.js[x]?$/, include: path.resolve(__dirname, './'), exclude: /node_modules/, loader: 'babel-loader?presets[]=react'}   
         ]
     },
