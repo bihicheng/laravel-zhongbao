@@ -148,17 +148,18 @@ export class FormDropDown extends Component {
 class PhoneValidatorSender extends Component {
     render() {
         let remaining = this.props.remaining;
-        let label = ''
 
         if (remaining === 0) {
-            label = '获取验证码'
+            let label = '获取验证码'
+            return (
+                <div className="ui basic button" onClick={this.props.getCaptcha}>{label}</div>
+            )
         } else {
-            label = remaining + 's可重新发送'
+            let label = remaining + 's可重新发送'
+            return (
+                <div className="ui basic button">{label}</div>
+            )
         }
-
-        return (
-            <div className="ui basic button">{label}</div>
-        )
     }
 }
 
@@ -174,7 +175,7 @@ export class FormPhoneValidator extends Component {
                 </div>
                 <FieldItem wide="eight" error={error} className="ui right inline field input">
                     {phoneLayout}
-                    <PhoneValidatorSender remaining={remaining} />
+                    <PhoneValidatorSender remaining={remaining} getCaptcha={this.props.getCaptcha}/>
                     <Validator error={error} />
                 </FieldItem>
             </div>

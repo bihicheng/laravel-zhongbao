@@ -4,7 +4,7 @@ import Dropzone from 'react-dropzone'
 
 const UPLOAD_STATUS = {
     UPLOADING: 1,
-    COMPELETE: 2,
+    COMPLETE: 2,
     ERROR: 3
 }
 
@@ -12,29 +12,27 @@ class Attachment extends Component {
     render() {
         const {file} = this.props
         let operations = ''
+        file.status = file.status || UPLOAD_STATUS.COMPLETE
 
-        switch (file.uploading) {
-          case '':
+        switch (file.status) {
+          case UPLOAD_STATUS.UPLOADING:
+              let barStyle = {width: file.percent + '%'}
+
               operations = (
                 <div className="ui small orange progress">
-                    <div className="bar">
-                        <div className="progress" date-percent={file.percent}></div>
+                    <div className="bar" style={barStyle}>
+                        <div className="progress"></div>
                         <i className="delete icon" onClick={this.props.onAbort(file)}>取消</i>
                     </div>
                 </div>
               )
               break
-          case 2:
+          case UPLOAD_STATUS.ERROR:
               operations = (
                   <i className="delete icon" onClick={this.props.onRetry(file)}>重试</i>
               )
               break
-          case 3:
-              operations = (
-                  <i className="delete icon" onClick={this.props.onAbort(file)}></i>
-              )
-              break
-          case 4: default:
+          case UPLOAD_STATUS.COMPLETE: default:
               operations = (
                   <i className="delete icon" onClick={this.props.onDelete(file)}></i>
               )
@@ -57,21 +55,23 @@ class Attachment extends Component {
 
 class AttachmentList extends Component {
     render() {
+        let attachmentNodes = []
+
+        for (let fileId in this.props.files) {
+            let file = this.props.files[fileId]
+            attachmentNodes.push(
+                <Attachment file={file} key={fileId}
+                            onDelete={this.props.onDelete}
+                            onAbort={this.props.onAbort}
+                            onRetry={this.props.onRetry} />)
+        }
+
         return(
             <div className="ui grid">
                 <div className="five wide column">
                     <table className="ui very basic table">
                       <tbody>
-                        {
-                          this.props.files.map((file, index) => {
-                            return (
-                                <Attachment file={file} key={index}
-                                            onDelete={this.props.onDelete}
-                                            onAbort={this.props.onAbort}
-                                            onRetry={this.props.onRetry} />
-                            )
-                          })
-                        }
+                        {attachmentNodes}
                       </tbody>
                     </table>
                 </div>
@@ -83,40 +83,66 @@ class AttachmentList extends Component {
 export default class TaskAttachments extends Component {
     constructor(props) {
         super(props)
-        this.state = {
-            files: this.props.files
+
+        let files = this.props.files
+        let fileDicts = {}
+
+        this.props.files.map((file) => {
+            fileDicts[file.id] = file
+        })
+
+        this.state = fileDicts
+    }
+
+    mergeState(entry, dirtyId) {
+        return Object.assign({}, this.state, {
+            [dirtyId]: entry
+        })
+    }
+
+    setUploadingState(status, dirtyId, percent) {
+        let entry = {status: status}
+        if (percent) entry.percent = percent
+        entry = Object.assign({}, this.state[dirtyId], entry)
+        this.setState(this.mergeState(entry, dirtyId))
+
+        return entry
+    }
+
+    uploadProgress(event, dirtyId) {
+        let percent = parseInt(100 * event.loaded / event.total, 10)
+        console.log(percent)
+        this.setUploadingState(UPLOAD_STATUS.UPLOADING, dirtyId, percent)
+    }
+
+    uploadError(event, dirtyId) {
+        this.setUploadingState(UPLOAD_STATUS.ERROR, dirtyId)
+    }
+
+    accomplish(event, xhr, dirtyId) {
+        if (xhr.status !== 200) {
+            this.uploadError(event, dirtyId)
+            return
+        }
+
+        let response = JSON.parse(xhr.responseText)
+
+        if (!response) {
+            this.uploadError(event, dirtyId)
+            return
+        }
+
+        if (response.status === 0) {
+            let entry = this.setUploadingState(UPLOAD_STATUS.COMPLETE, dirtyId)
+            entry.id = response.attachment_id
+            delete this.state[dirtyId]
+            this.setState(this.mergeState(entry, entry.id))
+        } else {
+            this.uploadError(event, dirtyId)
         }
     }
 
-    mergeState(entry, index) {
-        return [
-          ...this.state.files.slice(0, index),
-          entry,
-          ...this.state.files.slice(index + 1)
-        ]
-    }
-
-    setUploadingState(status, index, percent) {
-        let entry = {status: status}
-        if (percent) entry.percent = percent
-        entry = Object.assign({}, this.state[index], entry)
-        this.setState(this.mergeState(entry, index))
-    }
-
-    uploadProgress(event, index) {
-        let percent = parseInt(100 * event.loaded / event.total, 10)
-        this.setUploadingState(UPLOAD_STATUS.UPLOADING, index, percent)
-    }
-
-    uploadError(event, index) {
-        this.setUploadingState(UPLOAD_STATUS.ERROR, index)
-    }
-
-    accomplish(event, index) {
-        this.setUploadingState(UPLOAD_STATUS.COMPELETE, index)
-    }
-
-    upload(file, index) {
+    upload(file, dirtyId) {
         let formData = new FormData()
 
         formData.append('file', file)
@@ -126,55 +152,86 @@ export default class TaskAttachments extends Component {
         let xhr = new XMLHttpRequest()
         let uploadHandler = xhr.upload || xhr
 
-        uploadHandler.addEventListener('progress', (event) => this.uploadProgress(event, index))
-        uploadHandler.addEventListener('abort', (event) => this.uploadAbort(event, index))
-        uploadHandler.addEventListener('error', (event) => this.uploadError(event, index))
-        xhr.addEventListener('load', (event) => this.accomplish(event, index))
+        uploadHandler.addEventListener('progress', (event) => this.uploadProgress(event, dirtyId))
+        // uploadHandler.addEventListener('abort', (event) => this.uploadAbort(event, dirtyId))
+        uploadHandler.addEventListener('error', (event) => this.uploadError(event, dirtyId))
+        xhr.addEventListener('load', (event) => this.accomplish(event, xhr, dirtyId))
 
         xhr.open('POST', '/api/v1/attachments')
         xhr.send(formData)
+
+        return xhr
+    }
+
+    removeFileFromState(file) {
+        let fileDicts = this.state
+        delete fileDicts[file.id]
+        this.setState(fileDicts)
     }
 
     onDelete(file) {
-        $.ajax({
-            url: '/api/v1/attachments/' + id,
-            dataType: 'JSON',
-            type: 'DELETE'
-        }).then((response) => {
-            if (response.status === 0) {
+        return () => {
+            $.ajax({
+                url: '/api/v1/attachments/' + file.id,
+                dataType: 'JSON',
+                type: 'DELETE'
+            }).then((response) => {
+                if (response.status === 0) {
+                    this.removeFileFromState(file)
+                } else {
+                    //TODO
+                }
+            });
+        }
+    }
 
-            } else {
-
+    abortUpload(file) {
+        return () => {
+            let fileEntry = this.state[file.id]
+            if (!fileEntry) {
+                console.log('File not in current state')
+                return
             }
-        });
+
+            fileEntry.xhr.abort()
+            this.removeFileFromState(file)
+        }
     }
 
-    abortUpload() {
+    onRetry(file) {
+        return () => {
+            let fileEntry = this.state[file.id]
 
-    }
+            if (!fileEntry) {
+                console.log('File not in current state')
+                return
+            }
 
-    onRetry() {
-
+            let originFile = fileEntry.originFile
+            this.upload(originFile, file.id)
+        }
     }
 
     onDrop(files) {
-        let originFiles = this.state.files;
+        let fileDicts = this.state;
 
         for (let i = 0, l = files.length; i < l; i ++) {
-            let fileId = parseInt(Math.random() * 1000, 10) // create random key for component list render
-            let file = files[i]
-            originFiles.push({
-                id: fileId,
-                name: file.name,
-                size: file.size,
-                uploading: 0
-            })
+            // dirty id for file
+            let dirtyId = 'dirty_' + parseInt(Math.random() * 1000, 10)
+            let originFile = files[i]
+            let xhr = this.upload(originFile, dirtyId)
 
-            console.log(fileId);
-            //this.upload(files[0], fileId)
+            fileDicts[dirtyId] = {
+                id: dirtyId,
+                name: originFile.name,
+                size: originFile.size,
+                originFile: originFile,
+                xhr: xhr,
+                status: UPLOAD_STATUS.UPLOADING
+            }
         }
 
-        this.setState(originFiles)
+        this.setState(fileDicts)
     }
 
     componentDidMount() {
@@ -215,10 +272,10 @@ export default class TaskAttachments extends Component {
                         </div>
                     </div>
                 </div>
-                <AttachmentList files={this.props.files}
-                                onDelete={this.onDelete}
-                                onAbort={this.abortUpload}
-                                onRetry={this.onRetry} />
+                <AttachmentList files={this.state}
+                                onDelete={::this.onDelete}
+                                onAbort={::this.abortUpload}
+                                onRetry={::this.onRetry} />
             </div>
         )
     }
