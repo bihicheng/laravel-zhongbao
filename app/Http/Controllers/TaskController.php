@@ -104,6 +104,16 @@ class TaskController extends Controller
     }
 
     /**
+     * Show tasks' attachments
+     * @return \Illuminate\Http\Response
+     */
+    public function task_attachments($task_id) {
+        $attachments = $this->tasks->attachments($task_id);
+        $response = GetResponse(OK, ['attachments'=>$attachments]);
+        return response()->json($response);       
+    }
+
+    /**
      * Show the form for creating a new resource.
      *
      * @return \Illuminate\Http\Response

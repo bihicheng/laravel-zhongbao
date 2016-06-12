@@ -3,7 +3,7 @@
  * @Author: bihicheng
  * @Date:   2016-06-06 14:58:52
  * @Last Modified by:   bihicheng
- * @Last Modified time: 2016-06-08 11:48:34
+ * @Last Modified time: 2016-06-12 11:03:45
  */
 
 namespace App\Http\Controllers;
@@ -100,7 +100,9 @@ class AttachmentController extends Controller
      */
     public function show($id)
     {
-        //
+        $attachment = Attachment::find($id);
+        $headers = ['Content-Type' => $attachment->content_type];
+        return response($attachment->data, 200, $headers);
     }
 
     /**
