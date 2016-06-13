@@ -273,7 +273,7 @@ class TaskController extends Controller
 
                 if ($task->save()) {
                     $descEntry = $task->description;
-                    $descEntry->description = $description;
+                    $descEntry->content = $description;
 
                     if ($descEntry->save()) {
                         return response()->json(GetResponse(OK, ['task_id' => $id]));
