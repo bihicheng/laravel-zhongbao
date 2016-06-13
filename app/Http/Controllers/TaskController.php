@@ -62,7 +62,7 @@ class TaskController extends Controller
         }
 
         $tasks = $this->tasks->all($order_by, $sort, $filter_by, $filter, $perpage);
-        return response()->json($tasks);
+        return response()->json(GetResponse(OK, ['tasks' => $tasks]));
     }
 
     /**
