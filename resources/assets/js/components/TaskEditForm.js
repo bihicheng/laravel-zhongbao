@@ -14,19 +14,21 @@ const getTaskDetailFromServer = (taskId) => {
 
 const TaskEditForm = React.createClass({
     mixins: [TaskFormMixins],
-    setStateEntry(value, error=emptyStr, readonly=false) {
+    setStateEntry(value, readonly=false, error=emptyStr) {
         return {value: value, error: error, readonly: readonly}
     },
 
     getInitialState() {
         return {
-            loading:  true,
-            files:    [],
-            title:    {value: emptyStr, error: emptyStr, readonly: false},
-            kind:     {value: emptyStr, error: emptyStr, readonly: false},
-            endDate:  {value: moment().add(minDateStart, 'days'), error: emptyStr, readonly: false},
-            phone:    {value: emptyStr, error: emptyStr, readonly: false},
-            desc:     {value: emptyStr, error: emptyStr, readonly: false}
+            requestError: emptyStr,
+            loading:      true,
+            amount:       0,
+            files:        [],
+            title:        {value: emptyStr, error: emptyStr, readonly: false},
+            kind:         {value: emptyStr, error: emptyStr, readonly: false},
+            endDate:      {value: moment().add(minDateStart, 'days'), error: emptyStr, readonly: false},
+            phone:        {value: emptyStr, error: emptyStr, readonly: true},
+            desc:         {value: emptyStr, error: emptyStr, readonly: false}
         }
     },
 
@@ -35,14 +37,15 @@ const TaskEditForm = React.createClass({
             (response) => {
                 if (response.status === 0) {
                     let task = response.task
-                    this.setState(Object.assign({}, self.state, {
+                    this.setState(Object.assign({}, this.state, {
+                        amount: task.amount,
                         loading: false,
                         files: task.attachments,
                         title: this.setStateEntry(task.title),
                         kind: this.setStateEntry(task.kind),
                         endDate: this.setStateEntry(moment(task.deadline_at, 'YYYY-MM-DD')),
-                        phone: this.setStateEntry(''),
-                        desc: this.setStateEntry('')
+                        phone: this.setStateEntry(task.phone, true),
+                        desc: this.setStateEntry(task.desc || '')
                     }))
                 } else {
                     this.setState(Object.assign({}, this.state, {requestError: response.error, loading: false}))
@@ -104,14 +107,20 @@ const TaskEditForm = React.createClass({
                     <FormTextAreaField
                         label="项目描述"
                         validateAction={
-                            this.getActions([{type: ActionTypes.CHANGE, isAsync: false}], 'desc')
+                            this.getActions([{type: ActionTypes.CHANGE, isAsync: false},
+                                             {type: ActionTypes.BLUR, isAsync: false}], 'desc')
                         }
                         value={this.state.desc.value}
                         error={this.state.desc.error}
                         readonly={this.state.desc.readonly}
                         name="desc"
                     />
-                    <button className="ui button" type="submit" onClick={this.handleSubmit}>更新</button>
+                    <div className="ui grid stackable">
+                        <div className="two wide column"></div>
+                        <div className="four wide column">
+                            <button className="ui orange button" type="submit" onClick={this.submitTaskForm}>更新任务</button>
+                        </div>
+                    </div>
                 </div>
                 <div className="ui divider"></div>
                 <TaskAttachments files={this.state.files || []} taskId={this.props.params.taskId} />

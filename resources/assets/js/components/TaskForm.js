@@ -11,6 +11,8 @@ export const TaskForm = React.createClass({
     mixins: [TaskFormMixins],
     getInitialState() {
         return {
+            submitLoading: false,
+            submitError: emptyStr,
             remaining: 0,
             title:    {value: emptyStr, error: emptyStr},
             kind:     {value: emptyStr, error: emptyStr},
@@ -23,9 +25,20 @@ export const TaskForm = React.createClass({
 
     render() {
         let options = [{name: '节日', value: 1}, {name: '游戏', value: 2}, {name: '营销', value: 3}]
+        let formClassName = "ui form stackable"
+        let responseInfo = emptyStr
+
+        if (this.state.submitLoading) {
+            formClassName += ' loading'
+        }
+
+        if (this.state.submitError) {
+            responseInfo = this.handleSubmitError()
+        }
 
         return (
-            <div className="ui form stackable">
+            <div className={formClassName}>
+                {responseInfo}
                 <FormTextField
                     label="项目名称"
                     placeholder="必填"
@@ -65,6 +78,7 @@ export const TaskForm = React.createClass({
                                          {type: ActionTypes.BLUR, isAsync: false}], 'phone')
                     }
                     remaining={this.state.remaining}
+                    getCaptcha={this.getCaptcha}
                     value={this.state.phone.value}
                     error={this.state.phone.error}
                     name="phone"
@@ -89,7 +103,12 @@ export const TaskForm = React.createClass({
                     value={this.state.desc.value}
                     name="desc"
                 />
-                <button className="ui button" type="submit" onClick={this.handleSubmit}>提交</button>
+                <div className="ui grid stackable">
+                    <div className="two wide column"></div>
+                    <div className="four wide column">
+                        <button className="ui orange button" type="submit" onClick={this.submitTaskForm}>提交任务</button>
+                    </div>
+                </div>
             </div>
         )
     }
