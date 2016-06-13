@@ -20,14 +20,14 @@ class TaskController extends Controller
         $this->tasks = $tasks;
     }
 
-    public function home(Request $request, $userId)
+    public function home(Request $request)
     {
-        //$order_by = $request->input('order_by', 'created_at');
-        //$sort = $request->input('sort', 'desc');
-        //$filter_by  = $request->input('filter_by', 'status');
-        //$filter  = $request->input('filter', 0);
-        //$perpage = $request->input('perpage', 15);
-        //$tasks = $this->tasks->all($order_by, $sort, $filter_by, $filter, $perpage);
+        $order_by = $request->input('order_by', 'created_at');
+        $sort = $request->input('sort', 'desc');
+        $filter_by  = $request->input('filter_by', 'status');
+        $filter  = $request->input('filter', 0);
+        $perpage = $request->input('perpage', 15);
+        $tasks = $this->tasks->all($order_by, $sort, $filter_by, $filter, $perpage);
         return view('vendor.tasks', ['tasks'=>$tasks]);
     }
     /**
