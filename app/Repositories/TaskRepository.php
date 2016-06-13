@@ -4,7 +4,7 @@
  * @Author: bihicheng
  * @Date:   2016-06-06 16:22:22
  * @Last Modified by:   bihicheng
- * @Last Modified time: 2016-06-08 11:14:17
+ * @Last Modified time: 2016-06-12 10:23:44
  */
 
 namespace App\Repositories;
@@ -45,5 +45,19 @@ class TaskRepository {
 			->leftjoin('descriptions', 'tasks.id', '=', 'descriptions.task_id')
 			->get();
 		return $tasks;
+	}
+
+	/**
+	 * 获取任务附件
+	 * @return Collection
+	 */
+	public function attachments($task_id, $type=null) {
+		$attachments = Task::find($task_id)->attachments();
+		if(!empty($type)) {
+			$attachments = $attachments->where('type', $type);
+		}
+		$attachments->select('id', 'name', 'task_id', 'content_type', 
+							 'created_at', 'size', 'extension', 'user_id', 'type');
+		return $attachments->get();
 	}
 }
