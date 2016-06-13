@@ -1,11 +1,19 @@
-import React, {Component} from 'react'
+import React from 'react'
+import {render} from 'react-dom'
+import {Router, Route, browserHistory} from 'react-router'
+import TasksApp from '../components/TasksApp'
+import Tasks from '../components/Tasks'
+import MyTasks from '../components/MyTasks'
+import Message from '../components/Message'
 
-export default class Task extends Component {
-    render() {
-        return (
-            <div class="ui list"></div>
-        )
-    }
-}
+require('../../less/app.less')
 
-export default Task
+render((
+    <Router history={browserHistory}>
+        <Route path="/" component={TasksApp}>
+            <Route path='/tasks' component={Tasks} />
+            <Route path='/user/tasks' component={MyTasks} />
+            <Route path='/user/message' component={Message} />
+        </Route>
+    </Router>
+), document.getElementById('js-tasks-container'))

@@ -8,15 +8,23 @@ moment.locale('zh-cn')
 // 截止日期最小为当前日期的后两天
 export const minDateStart = 2
 
+const ErrorWhiteList = ['loading', 'checkmark']
+
 class Validator extends Component {
     render() {
         if (this.props.error === 'loading') {
             return (
-                <a className="ui basic loading button"></a>
+                <a className="ui active small inline loader"></a>
+            )
+        } else if (this.props.error === 'checkmark') {
+            return (
+                <i className="ui mall inline checkmark icon orange"></i>
             )
         } else if (this.props.error) {
+            let errorClassName = `ui ${this.props.point || 'left'} pointing red basic label`
+
             return (
-                <div className="ui left pointing red basic label">
+                <div className={errorClassName}>
                     {this.props.error}
                 </div>
             )
@@ -35,7 +43,7 @@ class FieldItem extends Component {
         }
 
         let itemClassName = initClassName.join(' ')
-        if (error && error !== 'loading') {
+        if (error && !ErrorWhiteList.includes(error)) {
             itemClassName += ' error'
         }
 
@@ -59,15 +67,23 @@ const mergeProps = (validateAction=[], layout) => {
 
 export class FormTextField extends Component {
     render() {
-        const {label, name, value, validateAction, error, ...attrs} = this.props
-        const inputLayout = mergeProps(validateAction, <input type="text" name={name} value={value||''} />)
+        const {label, name, value, validateAction, error, readonly, ...attrs} = this.props
+        let inputLayout = ''
+        let wide = 'eight'
+
+        if (readonly) {
+            wide = 'four'
+            inputLayout = <input type="text" name={name} value={value || ''} className="ui disabled input" readOnly />
+        } else {
+            inputLayout = mergeProps(validateAction, <input type="text" name={name} value={value || ''} />)
+        }
 
         return (
             <div className="ui grid stackable">
                 <div className="two wide column task-form-label">
                     <label>{label}</label>
                 </div>
-                <FieldItem wide="eight" error={error} >
+                <FieldItem wide={wide} error={error} >
                     {inputLayout}
                     <Validator error={error} />
                 </FieldItem>
@@ -88,7 +104,7 @@ export class FormTextAreaField extends Component {
                 </div>
                 <FieldItem wide="eight" error={error}>
                     {textAreaLayout}
-                    <Validator error={error} />
+                    <Validator error={error} point="top"/>
                 </FieldItem>
             </div>
         )

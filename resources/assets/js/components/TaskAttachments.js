@@ -13,35 +13,36 @@ class Attachment extends Component {
         const {file} = this.props
         let operations = ''
         file.status = file.status || UPLOAD_STATUS.COMPLETE
+        // file.status = UPLOAD_STATUS.UPLOADING
 
         switch (file.status) {
           case UPLOAD_STATUS.UPLOADING:
               let barStyle = {width: file.percent + '%'}
 
               operations = (
-                <div className="ui small orange progress">
-                    <div className="bar" style={barStyle}>
-                        <div className="progress"></div>
-                        <i className="delete icon" onClick={this.props.onAbort(file)}>取消</i>
+                <div className="inline">
+                    <div className="attachment-bar">
+                        <span className="attachment-progress" style={barStyle}></span>
                     </div>
+                    <i className="remove icon" onClick={this.props.onAbort(file)}></i>
                 </div>
               )
               break
           case UPLOAD_STATUS.ERROR:
               operations = (
-                  <i className="delete icon" onClick={this.props.onRetry(file)}>重试</i>
+                  <a onClick={this.props.onRetry(file)}>上传失败，点击重试</a>
               )
               break
           case UPLOAD_STATUS.COMPLETE: default:
               operations = (
-                  <i className="delete icon" onClick={this.props.onDelete(file)}></i>
+                  <i className="remove icon" onClick={this.props.onDelete(file)} title="删除"></i>
               )
               break
         }
 
         return (
             <tr key={file.id}>
-                <td>
+                <td className="attachment-title">
                     <i className="file icon"></i>
                     <a>{file.name}</a>
                 </td>
@@ -59,16 +60,20 @@ class AttachmentList extends Component {
 
         for (let fileId in this.props.files) {
             let file = this.props.files[fileId]
-            attachmentNodes.push(
-                <Attachment file={file} key={fileId}
-                            onDelete={this.props.onDelete}
-                            onAbort={this.props.onAbort}
-                            onRetry={this.props.onRetry} />)
+
+            if (file) {
+                attachmentNodes.push(
+                    <Attachment file={file} key={fileId}
+                                onDelete={this.props.onDelete}
+                                onAbort={this.props.onAbort}
+                                onRetry={this.props.onRetry} />)
+            }
         }
 
         return(
             <div className="ui grid">
-                <div className="five wide column">
+                <div className="two wide column"></div>
+                <div className="seven wide column">
                     <table className="ui very basic table">
                       <tbody>
                         {attachmentNodes}
@@ -111,7 +116,6 @@ export default class TaskAttachments extends Component {
 
     uploadProgress(event, dirtyId) {
         let percent = parseInt(100 * event.loaded / event.total, 10)
-        console.log(percent)
         this.setUploadingState(UPLOAD_STATUS.UPLOADING, dirtyId, percent)
     }
 
@@ -164,8 +168,8 @@ export default class TaskAttachments extends Component {
     }
 
     removeFileFromState(file) {
-        let fileDicts = this.state
-        delete fileDicts[file.id]
+        let fileDicts = Object.assign({}, this.state)
+        fileDicts[file.id] = null
         this.setState(fileDicts)
     }
 
@@ -248,6 +252,9 @@ export default class TaskAttachments extends Component {
         return (
             <div className="ui basic">
                 <div className="ui grid">
+                    <div className="two wide column attachment-title">
+                        <label>任务附件</label>
+                    </div>
                     <div className="ten wide column">
                         <Dropzone ref="dropzone" onDrop={this.onDrop.bind(this)} className="ui labeled icon orange button">
                             <i className="plus icon"></i>

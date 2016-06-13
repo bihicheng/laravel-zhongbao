@@ -12,10 +12,11 @@ const ErrorMessage =  {
     KIND_EMPTY: '请选择项目类型',
     DATE_FORMAT: '日期格式错误，请重新选择',
     TITLE_EMPTY: '项目名称不能为空',
-    DESC_TOO_LONG: '项目描述过长，最大1204个字符',
+    DESC_TOO_LONG: '项目描述过长，最大255个字符',
     PHONE_EMPTY: '请输入手机号',
     PHONE_FORMAT: '手机号码格式不正确',
     CAPTCHA_EMPTY: '请输入验证码',
+    CAPTCHA_ERROR: '验证码不正确',
     CAPTCHA_REQUEST_ERROR: '获取验证码失败'
 }
 
@@ -106,6 +107,7 @@ export const submitTaskForm = function() {
         url: '/api/v1/tasks',
         type: 'POST',
         data: {
+            user_id: '53a90471a3664eb925000c71',
             title: this.state.title.value,
             kind: this.state.kind.value,
             deadline_at: this.state.endDate.value.format('YYYY-MM-DD hh:mm:ss'),
@@ -117,7 +119,7 @@ export const submitTaskForm = function() {
         stateObj.submitLoading = false
         if (response.status === 0) {
             let taskId = response.task_id
-            const path = `/tasks/{$taskId}/edit`
+            const path = `/tasks/${taskId}/edit`
             browserHistory.push(path)
         } else if (response.status === 3) {
             stateObj.submitError = response.msg
@@ -128,7 +130,7 @@ export const submitTaskForm = function() {
         }
     }, (error) => {
         stateObj.submitLoading = false
-        stateObj.submitError = '服务器错误: (' + error + ')' 
+        stateObj.submitError = '服务器错误: (' + error.statusText + ')' 
         this.setState(Object.assign({}, this.state, stateObj))
     })
 
@@ -140,7 +142,7 @@ export const titleOnBlur = (inputEvent) => {
         let [result, error] = Validator.title(title) 
 
         if (result) {
-            resolve(title, error)
+            resolve([title, error])
         } else {
             reject(error)
         }
@@ -152,7 +154,7 @@ export const kindOnChange = (kind) => {
         let [result, error] = Validator.kind(kind)
 
         if (result) {
-            resolve(kind, error)
+            resolve([kind, error])
         } else {
             reject(error)
         }
@@ -164,20 +166,20 @@ export const endDateOnChange = (endDate) => {
         let [result, error] = Validator.endDate(endDate)
 
         if (result) {
-            resolve(endDate, error)
+            resolve([endDate, error])
         } else {
             reject(error)
         }
     })
 }
 
-export const descOnChange = (inputEvent) => {
+export const descOnBlur = (inputEvent) => {
     return new Promise((resolve, reject) => {
-        const desc = inputEvent.target.value
+        let desc = inputEvent.target.value
         let [result, error] = Validator.desc(desc)
 
         if (result) {
-            resolve(desc, error)
+            resolve([desc, error])
         } else {
             reject(error)
         }
@@ -190,7 +192,7 @@ export const phoneOnBlur = (inputEvent) => {
         let [result, error] = Validator.phone(phone)
 
         if (result) {
-            resolve(phone, error)
+            resolve([phone, error])
         } else {
             reject(error)
         }
@@ -203,7 +205,19 @@ export const captchaOnBlur = (inputEvent) => {
         let [result, error] = Validator.captcha(captcha)
 
         if (result) {
-            resolve(captcha, error)
+            // async validate
+            $.getJSON('/api/v1/captcha/validate', {captcha: captcha}).then(
+                (response) => {
+                    if (response.status === 0) {
+                        resolve([captcha, 'checkmark']) 
+                    } else {
+                        reject(ErrorMessage.CAPTCHA_ERROR)
+                    }
+                },
+                (error) => {
+                    reject(error.statusText)
+                }    
+            )
         } else {
             reject(error)
         }
@@ -215,10 +229,10 @@ export const getCaptcha = (phone) => {
         if (phone === emptyStr) {
             reject(ErrorMessage.PHONE_EMPTY)
         } else {
-            $.post('/api/v1/captcha/' + phone).then(
+            $.post('/api/v1/' + phone + '/captcha').then(
                 (response) => {
                     if (response.status === 0) {
-                        resolve(response)
+                        resolve([response.status, response.error])
                     } else {
                         reject(ErrorMessage.CAPTCHA_REQUEST_ERROR + '(' + response.error + ')')
                     }

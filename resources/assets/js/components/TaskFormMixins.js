@@ -2,6 +2,9 @@ import React from 'react'
 import * as FormActions  from  '../actions/formAction'
 import * as ActionTypes from '../actions/actionTypes'
 
+
+const loadingStr = 'loading'
+
 const capitalizeFirstLetter = (string) => {
     return string.charAt(0).toUpperCase() + string.slice(1)
 }
@@ -31,7 +34,7 @@ const TaskFormMixins = {
         return (
             <div className="ui column grid">
                 <div className="ten wide column ">
-                    <p className="ui negative message">{responseInfo}</p>
+                    <div className="ui negative message">{responseInfo}</div>
                     <div className="ui divider"></div>
                 </div>
             </div>
@@ -84,14 +87,16 @@ const TaskFormMixins = {
 
         const handler = (inputObj) => {
             if (isAsync) {
+                let oldVal = this.state[fieldName].value
                 this.setState(merge({
-                    [fieldName]: {error: loadingStr}
+                    [fieldName]: {value: oldVal, error: loadingStr}
                 }))
             }
 
             let actionResult = action(inputObj)
             if (actionResult.then) {
-                actionResult.then((newVal, error) => {
+                actionResult.then((result) => {
+                    let [newVal, error] = result
                     this.setState(merge({
                         [fieldName]: {value: newVal, error: error}
                     }))
