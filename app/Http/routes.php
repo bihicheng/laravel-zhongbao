@@ -11,6 +11,10 @@
 |
 */
 
+Route::get('/', 'TaskController@home');
 Route::get('/tasks', 'TaskController@home');
 Route::get('/tasks/new', 'TaskController@create');
 Route::get('/tasks/{id}/edit', 'TaskController@edit');
+
+Route::get('/user/tasks', 'TaskController@home');
+Route::get('/user/message', 'TaskController@home');

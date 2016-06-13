@@ -7,8 +7,10 @@
  */
 
 Route::group(array('prefix' => 'api/v1'), function() {
-    Route::resource('tasks', 'TaskController', ['only'=>['index', 'store', 'show']]);
-    Route::resource('attachments', 'AttachmentController', ['only' => ['store']]);
+    Route::resource('tasks', 'TaskController', ['only'=>['index', 'store', 'show', 'update']]);
+    Route::resource('attachments', 'AttachmentController', ['only' => ['store', 'destroy']]);
     Route::get('/user_task', 'TaskController@user_task')
     						->name('api.v1.tasks.user_task');
+    Route::post('/{phone}/captcha', 'CaptchaController@create');
+    Route::get('/captcha/validate', 'CaptchaController@get');
 });

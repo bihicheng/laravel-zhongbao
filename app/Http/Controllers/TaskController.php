@@ -20,14 +20,14 @@ class TaskController extends Controller
         $this->tasks = $tasks;
     }
 
-    public function home(Request $request)
+    public function home(Request $request, $userId)
     {
-        $order_by = $request->input('order_by', 'created_at');
-        $sort = $request->input('sort', 'desc');
-        $filter_by  = $request->input('filter_by', 'status');
-        $filter  = $request->input('filter', 0);
-        $perpage = $request->input('perpage', 15);
-        $tasks = $this->tasks->all($order_by, $sort, $filter_by, $filter, $perpage);
+        //$order_by = $request->input('order_by', 'created_at');
+        //$sort = $request->input('sort', 'desc');
+        //$filter_by  = $request->input('filter_by', 'status');
+        //$filter  = $request->input('filter', 0);
+        //$perpage = $request->input('perpage', 15);
+        //$tasks = $this->tasks->all($order_by, $sort, $filter_by, $filter, $perpage);
         return view('vendor.tasks', ['tasks'=>$tasks]);
     }
     /**
@@ -124,21 +124,25 @@ class TaskController extends Controller
         $validator = Validator::make($request->all(), [
             'title' => 'required|max:255',
             'deadline_at' => 'required|date_format:Y-m-d H:i:s',
-            'amount' => 'required|numeric',
-            'status' => 'required|numeric|status',
+            //'amount' => 'required|numeric',
+            'phone' => 'required|string',
+            'captcha' => 'required|string',
+            //'status' => 'required|numeric|status',
             'kind' => 'required|numeric',
             'user_id' => 'required|string',# 测试用
         ]);
 
-        if($validator->fails()) {
+        if ($validator->fails()) {
             $errors = $validator->messages()->all();
             $response = GetResponse(INVALID_OR_MISSING_ARGUMENT, 
                                                 ['msg'=>$errors]);
             return response()->json($response);
         }
 
+        //TODO validate captcha in session
+
         $title = $request->input('title');
-        $description = $request->input('description');
+        $description = $request->input('desc', '');
         $preview_at = $request->input('preview_at');
         $commit_at = $request->input('commit_at');
         $deadline_at = $request->input('deadline_at');
@@ -146,6 +150,7 @@ class TaskController extends Controller
         $status = $request->input('status', 0);
         $user_id = $request->input('user_id');
         $kind = $request->input('kind');
+        $phone = $request->input('phone');
 
         $task = new Task;
         $task->title = $title;
@@ -155,16 +160,17 @@ class TaskController extends Controller
         $task->status = $status;
         $task->user_id = $user_id;
         $task->kind = $kind;
-        $task->amount = $amount;
+        // $task->amount = $amount;
+        $task->phone = $phone;
         $ret = $task->save();
-        if($ret) {
+        if ($ret) {
             $desc = new Description;
             $desc->content = $description;
             $desc->task_id = $task->id;
             $ret = $desc->save();           
         }
 
-        if($ret) {
+        if ($ret) {
             $response = GetResponse(OK, ['task_id'=>$task->id, 
                                         'task_title'=>$title]);
         } else {
@@ -218,7 +224,58 @@ class TaskController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $task = Task::find($id);
+
+        if (!$task) {
+            $response = GetResponse(NOT_SUPPORTED, 'Task Not Found');
+
+            return response()->json($response);
+        } else {
+            $amount = $task->amount;
+
+            if ($amount > 0) {
+                $response = GetResponse(NOT_SUPPORTED, 'Task paid');
+
+                return response()->json($response);
+            } else {
+                $validator = Validator::make($request->all(), [
+                    'title' => 'required|max:255',
+                    'deadline_at' => 'required|date_format:Y-m-d H:i:s',
+                    'kind' => 'required|numeric',
+                    'user_id' => 'required|string',# 测试用
+                ]);
+
+                if ($validator->fails()) {
+                    $errors = $validator->messages()->all();
+                    $response = GetResponse(INVALID_OR_MISSING_ARGUMENT, 
+                                                        ['msg'=>$errors]);
+                    return response()->json($response);
+                }
+
+                $title = $request->input('title');
+                $deadline_at = $request->input('deadline_at');
+                $kind = $request->input('kind');
+                $description = $request->input('desc', '');
+
+                $task->title = $title;
+                $task->deadline_at = $deadline_at;
+                $task->kind = $kind;
+
+                if ($task->save()) {
+                    $descEntry = $task->description;
+                    $descEntry->description = $description;
+
+                    if ($descEntry->save()) {
+                        return response()->json(GetResponse(OK, ['task_id' => $id]));
+                    } else {
+                        return response()->json(GetResponse(FAILED_TO_WRITE_DATABASE, 'Save Desc Failed'));
+                    }
+
+                } else {
+                    return response()->json(GetResponse(FAILED_TO_WRITE_DATABASE, 'Save task Failed'));
+                }
+            }
+        }
     }
 
     /**
