@@ -9,14 +9,7 @@
                 @include('components.header')
             </header>
             @yield('banner')
-            <div class="ui stackable grid">
-                <div class="four wide column">
-                    @yield('leftNavbar')
-                </div>
-                <div class="twelve wide column">
-                    @yield('mainContainer')
-                </div>
-            </div>
+            @yield('mainContainer')
             <footer>
                 @include('components.footer')
             </footer>
