@@ -24,10 +24,12 @@ class TaskController extends Controller
     {
         $order_by = $request->input('order_by', 'created_at');
         $sort = $request->input('sort', 'desc');
-        $filter_by  = $request->input('filter_by', 'status');
-        $filter  = $request->input('filter', 0);
+        $status = $request->input('status');
+        $kind = $request->input('kind');
+        $filter_by  = $request->input('filter_by');
+        $filter  = $request->input('filter');
         $perpage = $request->input('perpage', 15);
-        $tasks = $this->tasks->all($order_by, $sort, $filter_by, $filter, $perpage);
+        $tasks = $this->tasks->all($order_by, $sort, $status, $kind, $filter_by, $filter, $perpage);
         return view('vendor.tasks', ['tasks'=>$tasks]);
     }
     /**
@@ -39,8 +41,10 @@ class TaskController extends Controller
     {
         $order_by = $request->input('order_by', 'created_at');
         $sort = $request->input('sort', 'desc');
-        $filter_by  = $request->input('filter_by', 'status');
-        $filter  = $request->input('filter', 0);
+        $status = $request->input('status');
+        $kind = $request->input('kind');
+        $filter_by  = $request->input('filter_by');
+        $filter  = $request->input('filter');
         $perpage = $request->input('perpage', 15);
 
         if(!in_array($order_by, ['created_at', 'amount', 'deadline_at'])) {
@@ -55,13 +59,7 @@ class TaskController extends Controller
             return response()->json($response);            
         }
 
-        if(!in_array($filter_by, ['status', 'kind'])) {
-            $response = GetResponse(INVALID_OR_MISSING_ARGUMENT, 
-                                                'filter_by is invalidate');
-            return response()->json($response);            
-        }
-
-        $tasks = $this->tasks->all($order_by, $sort, $filter_by, $filter, $perpage);
+        $tasks = $this->tasks->all($order_by, $sort, $status, $kind, $filter_by, $filter, $perpage);
         return response()->json(GetResponse(OK, ['tasks' => $tasks]));
     }
 
