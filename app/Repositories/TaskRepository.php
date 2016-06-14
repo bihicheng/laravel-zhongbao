@@ -4,7 +4,7 @@
  * @Author: bihicheng
  * @Date:   2016-06-06 16:22:22
  * @Last Modified by:   bihicheng
- * @Last Modified time: 2016-06-14 10:24:18
+ * @Last Modified time: 2016-06-14 10:55:22
  */
 
 namespace App\Repositories;
@@ -26,7 +26,14 @@ class TaskRepository {
 
 		$where = Task::leftjoin('descriptions', function($join) {
 							$join->on('tasks.id', '=', 'descriptions.task_id');
-						})->where('status', $status)->where('kind', $kind);
+						});
+		# 0 或者 null 不加入查询条件
+		if(!empty($status)) {
+			$where->where('status', $status);
+		} 
+		if(!empty($kind)) {
+			$where->where('kind', $kind);
+		}
 		if(isset($task_filter_by) && !empty($task_filter_by)) {
 			$where->where($task_filter_by, $filter);
 		}
