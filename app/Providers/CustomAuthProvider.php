@@ -9,7 +9,6 @@
 
 namespace App\Providers;
 
-use App\User;
 use App\Auth\CustomUserProvider;
 use Illuminate\Support\ServiceProvider;
 
@@ -23,7 +22,7 @@ class CustomAuthProvider extends ServiceProvider
     public function boot()
     {
     	$this->app['auth']->provider('custom', function(){
-    		return new CustomUserProvider($this->app['hash'], new User);
+    		return new CustomUserProvider($this->app['hash'], 'App\User');
     	});
     }
 
