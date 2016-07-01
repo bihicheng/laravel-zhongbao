@@ -3,10 +3,10 @@
  * @Author: bihicheng
  * @Date:   2016-06-06 14:58:52
  * @Last Modified by:   bihicheng
- * @Last Modified time: 2016-07-01 18:06:59
+ * @Last Modified time: 2016-07-01 21:04:47
  */
 
-Route::group(['prefix' => 'api/v1', 'middleware' => 'auth'], function() {
+Route::group(['prefix' => 'api/v1', 'middleware' => ['web', 'auth']], function() {
     Route::resource('tasks', 'TaskController', ['only'=>['index', 'store', 'show', 'update']]);
     Route::resource('attachments', 'AttachmentController', ['only' => ['store', 'destroy']]);
     Route::get('/user_task', 'TaskController@user_task')
