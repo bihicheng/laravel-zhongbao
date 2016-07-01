@@ -22,6 +22,7 @@ class TaskController extends Controller
 
     public function home(Request $request)
     {
+        var_dump($request->session()->get(null));
         $order_by = $request->input('order_by', 'created_at');
         $sort = $request->input('sort', 'desc');
         $status = $request->input('status');
